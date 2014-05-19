@@ -33,7 +33,7 @@
  @param payloadValidation indicates if the header is created with payload validation.
  @return The Authorization header with Hawk protocol.
  */
-+ (NSString *)generateAuthorizationHeader:(NSURL *)url method:(NSString *)method timestamp:(NSString *)timestamp nonce:(NSString *)nonce credentials:(HawkCredentials *)credentials ext:(NSString *)ext payload:(NSString *)payload payloadValidation:(BOOL)payloadValidation;
++ (NSString *)generateAuthorizationHeader:(NSURL *)url method:(NSString *)method timestamp:(NSString *)timestamp nonce:(NSString *)nonce credentials:(HawkCredentials *)credentials ext:(NSString *)ext payload:(NSString *)payload port:(NSUInteger)port payloadValidation:(BOOL)payloadValidation;
 
 /*!
  @discussion This method returns a timestamp in seconds from UTC time.

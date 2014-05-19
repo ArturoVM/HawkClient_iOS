@@ -12,9 +12,9 @@
 
 #pragma mark - HawkClient public methods.
 
-+ (NSString *)generateAuthorizationHeader:(NSURL *)url method:(NSString *)method timestamp:(NSString *)timestamp nonce:(NSString *)nonce credentials:(HawkCredentials *)credentials ext:(NSString *)ext payload:(NSString *)payload payloadValidation:(BOOL)payloadValidation
++ (NSString *)generateAuthorizationHeader:(NSURL *)url method:(NSString *)method timestamp:(NSString *)timestamp nonce:(NSString *)nonce credentials:(HawkCredentials *)credentials ext:(NSString *)ext payload:(NSString *)payload port:(NSUInteger)port payloadValidation:(BOOL)payloadValidation
 {
-    if (url == nil || method == nil || timestamp == nil || nonce == nil || credentials == nil)
+    if (url == nil || method == nil || timestamp == nil || nonce == nil || credentials == nil || port == 0)
         [NSException raise:@"Invalid arguments." format:@"url, method, timestamp, nonce and credentials are required!"];
     
     // Prepare some variables that may be null.
@@ -26,7 +26,7 @@
         payload = [HawkClient generateMAC:payload credentials:credentials];
     
     // Generate the MAC.
-    NSString *MAC = [self generateMAC:[self generateNormalizedString:url method:method timestamp:timestamp nonce:nonce credentials:credentials payload:payload ext:ext] credentials:credentials];
+    NSString *MAC = [self generateMAC:[self generateNormalizedString:url method:method timestamp:timestamp nonce:nonce credentials:credentials payload:payload port:port ext:ext] credentials:credentials];
     
     return payloadValidation ?
     [NSString stringWithFormat:@"Hawk id=\"%@\", ts=\"%@\", nonce=\"%@\", hash=\"%@\", ext=\"%@\", mac=\"%@\"", credentials.identifier, timestamp, nonce, payload, ext, MAC] :
@@ -83,16 +83,17 @@
  @param ext Some extra string.
  @return The normalized string according to Hawk protocol.
  */
-+ (NSString *)generateNormalizedString:(NSURL *)url method:(NSString *)method timestamp:(NSString *)timestamp nonce:(NSString *)nonce credentials:(HawkCredentials *)credentials payload:(NSString *)payload ext:(NSString *)ext
++ (NSString *)generateNormalizedString:(NSURL *)url method:(NSString *)method timestamp:(NSString *)timestamp nonce:(NSString *)nonce credentials:(HawkCredentials *)credentials payload:(NSString *)payload port:(NSUInteger)port ext:(NSString *)ext
 {
     // Preparing the variables.
     NSString *header = @"hawk.1.header";
     method = [method uppercaseString];
     NSString *query = (url.query == nil) ? @"" : [NSString stringWithFormat:@"?%@", url.query];
     NSString *uri = [NSString stringWithFormat:@"%@%@", url.path, query];    NSString *host = url.host;
+    NSString *formattedPort = [NSString stringWithFormat:@"%u", port];
     
     // Creating the normalized string.
-    return [NSString stringWithFormat:@"%@\n%@\n%@\n%@\n%@\n%@\n%@\n%@\n", header, timestamp, nonce, method, uri, host, payload, ext];
+    return [NSString stringWithFormat:@"%@\n%@\n%@\n%@\n%@\n%@\n%@\n%@\n%@\n", header, timestamp, nonce, method, uri, host, formattedPort, payload, ext];
 }
 
 @end
